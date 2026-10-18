@@ -6,8 +6,7 @@ import pytest
 
 from agelayer import effective as eff_mod
 from agelayer import impact as impact_mod
-from agelayer import registry
-from agelayer import views
+from agelayer import registry, views
 from agelayer.demo_helpers import TOOL_CATALOG
 
 

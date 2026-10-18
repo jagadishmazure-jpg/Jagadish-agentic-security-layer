@@ -185,6 +185,7 @@ vendor's products in the boundary section; it is now vendor-neutral.
 |---|---|
 | Registry, shadow detection, privilege graph, impact analysis | Built |
 | Governed bridge with human-issued approvals and expiring JIT elevation | Built |
+| Effective-privilege layer (nested groups, wildcards, dormant grants, hidden escalations) | Built |
 | ZSP posture scorer | Built |
 | Strict authorizer + bypassed-text-check regressions | Built |
 | Streamlit demo | Written, not run here (needs streamlit) |
