@@ -7,5 +7,5 @@ providers, real credentials, or production systems.
   deterministically for demonstration.
 - The "vault", "JIT elevation", and "fake tool backend" are simulations;
   they perform no real privileged operations.
-- To report a security issue with this repository itself, open a private
-  vulnerability report on GitHub.
+- To report a security issue with this repository itself, use private
+  vulnerability reporting in this repository's Security tab.

@@ -21,6 +21,17 @@ WRITE_CATEGORIES = {"write", "destructive"}
 def score(conn, tool_catalog: dict, jit_action_count: int,
           total_privileged_actions: int, rotated_within_30d: int,
           total_credentials: int, shadow_count: int) -> dict:
+    for name, v in (("jit_action_count", jit_action_count),
+                    ("total_privileged_actions", total_privileged_actions),
+                    ("rotated_within_30d", rotated_within_30d),
+                    ("total_credentials", total_credentials),
+                    ("shadow_count", shadow_count)):
+        if v < 0:
+            raise ValueError(f"ZSP-INPUT-01: {name} must be >= 0")
+    if jit_action_count > total_privileged_actions:
+        raise ValueError("ZSP-INPUT-01: JIT actions cannot exceed privileged actions")
+    if rotated_within_30d > total_credentials:
+        raise ValueError("ZSP-INPUT-01: rotated credentials cannot exceed total")
     agents = [a for a in registry.list_agents(conn)
               if a["status"] == "active"]
     n = len(agents)
@@ -28,7 +39,8 @@ def score(conn, tool_catalog: dict, jit_action_count: int,
     if n:
         no_standing_write = sum(
             1 for a in agents
-            if not any(tool_catalog.get(t, {}).get("category") in WRITE_CATEGORIES
+            if not any(tool_catalog.get(t, {}).get("category", "destructive")
+                       in WRITE_CATEGORIES
                        for t in a["tools_granted"]))
         comp_write = 100.0 * no_standing_write / n
     else:

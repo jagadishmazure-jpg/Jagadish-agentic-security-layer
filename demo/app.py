@@ -3,7 +3,7 @@
 try:
     import streamlit as st
 except ImportError:  # pragma: no cover
-    raise SystemExit("streamlit is not installed; demo only")
+    raise SystemExit("streamlit is not installed; demo only") from None
 
 from agelayer import demo_helpers
 

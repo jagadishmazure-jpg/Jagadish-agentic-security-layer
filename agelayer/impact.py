@@ -22,7 +22,7 @@ def analyze_compromise(graph: dict, agent_id: str) -> dict:
                 "node": node,
                 "kind": "tool",
                 "sensitivity": m.get("sensitivity", 3),
-                "category": m.get("category", "write"),
+                "category": m.get("category", "destructive"),
                 "path": radius["paths"][node],
             })
         elif m.get("kind") == "scope":

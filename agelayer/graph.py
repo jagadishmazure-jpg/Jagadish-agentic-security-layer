@@ -37,7 +37,7 @@ def build(conn, tool_catalog: dict) -> dict:
             info = tool_catalog.get(tool, {})
             meta.setdefault(tnode, {
                 "kind": "tool",
-                "category": info.get("category", "write"),
+                "category": info.get("category", "destructive"),
                 "sensitivity": info.get("sensitivity", 3),
             })
             for scope in sorted(info.get("scopes", [])):

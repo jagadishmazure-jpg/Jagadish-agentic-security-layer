@@ -14,4 +14,8 @@
 - **Defense in depth on reads:** the SELECT gateway has two independent
   layers (text check + SQLite authorizer); regression tests prove the
   authorizer alone denies raw-table reads with the text check bypassed.
-- **Proof:** 52 tests, all from real runs; demo scenario is deterministic.
+- **Approvals the agent cannot forge:** review found an agent could set
+  `human_approved=True` itself. Approvals now come only from a named human
+  via `Bridge.approve`, are single-use, scoped and expiring — tested.
+- **Proof:** the README's test count and demo output are rendered from a
+  real run and checked in CI; the demo uses a fixed clock.

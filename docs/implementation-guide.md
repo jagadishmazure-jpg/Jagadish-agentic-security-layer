@@ -3,7 +3,7 @@
 ## Running locally
 
 ```bash
-python3 -m pytest tests/ -q        # 52 regression checks
+python3 -m pytest tests/ -q
 python3 scripts/count_tests.py     # prints the real total
 ```
 
@@ -29,5 +29,6 @@ python3 -m streamlit run demo/app.py
 ## Autonomy levels
 
 - L0 propose-only (no execution) · L1 read-only · L2 reads+writes ·
-  L3 full within grant. Destructive tools always need human approval,
-  regardless of level (fail-closed, BRIDGE-04).
+  L3 full within grant. Destructive tools need L2+ and a human-issued,
+  single-use approval (the agent cannot assert it),
+  regardless of autonomy level (fail-closed, BRIDGE-04/05).

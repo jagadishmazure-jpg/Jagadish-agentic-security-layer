@@ -25,8 +25,7 @@ _VIEW_SQL = {
     "v_agent_posture": """
         CREATE VIEW IF NOT EXISTS v_agent_posture AS
         SELECT agent_id, name, model, autonomy_level, owner, status,
-               (LENGTH(tools_granted) - LENGTH(REPLACE(tools_granted, ',', '')) + 1)
-                 AS tool_count
+               json_array_length(tools_granted) AS tool_count
         FROM agents
     """,
     "v_shadow_findings": """
@@ -96,7 +95,7 @@ def run_query(conn: sqlite3.Connection, sql: str,
             rows = cur.fetchmany(MAX_ROWS + 1)
         except sqlite3.DatabaseError as exc:
             raise GatewayDenied("SEC-SELECT-03",
-                                f"authorizer denied: {denied or exc}")
+                                f"authorizer denied: {denied or exc}") from None
     if len(rows) > MAX_ROWS:
         raise GatewayDenied("SEC-SELECT-04",
                             f"row cap exceeded ({MAX_ROWS})")
@@ -116,4 +115,4 @@ def run_query_authorizer_only(conn: sqlite3.Connection, sql: str,
             return cur.fetchmany(MAX_ROWS + 1)
         except sqlite3.DatabaseError as exc:
             raise GatewayDenied("SEC-SELECT-03",
-                                f"authorizer denied: {denied or exc}")
+                                f"authorizer denied: {denied or exc}") from None

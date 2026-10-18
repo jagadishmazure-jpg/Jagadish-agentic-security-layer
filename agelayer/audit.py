@@ -17,6 +17,8 @@ class AuditLog:
         self.entries: list[dict] = []
 
     def record(self, kind: str, payload: dict) -> dict:
+        # AUDIT-COPY-01: keep a JSON-safe copy of the payload.
+        payload = json.loads(json.dumps(payload, sort_keys=True, default=str))
         prev = self.entries[-1]["digest"] if self.entries else "GENESIS"
         body = {"seq": len(self.entries), "ts": _utcnow(), "kind": kind,
                 "payload": payload, "prev": prev}

@@ -9,10 +9,8 @@ from agelayer import bridge as bridge_mod
 from agelayer import feedback as feedback_mod
 from agelayer import graph as pgraph
 from agelayer import impact as impact_mod
-from agelayer import registry
+from agelayer import registry, views, zsp
 from agelayer import shadow as shadow_mod
-from agelayer import views
-from agelayer import zsp
 from agelayer.demo_helpers import TOOL_CATALOG, run_scenario
 
 # ---------------------------------------------------------------- helpers
@@ -254,7 +252,7 @@ def test_bridge_write_allowed_with_jit_elevation():
     registry.register_agent(conn, "w1", "W1", "m", ["write_invoice"],
                             ["billing"], 1, "ops")
     br = bridge_mod.Bridge(conn, TOOL_CATALOG)
-    elv = br.grant_elevation("w1", "write_invoice")
+    elv = br.grant_elevation("w1", "write_invoice", approver="ops-lead")
     out = br.execute(bridge_mod.ActionRequest("w1", "write_invoice"),
                      elevation_id=elv)
     assert out["decision"] == "allowed"
@@ -266,7 +264,7 @@ def test_bridge_elevation_wrong_tool_denied():
                             ["write_invoice", "deploy_service"],
                             ["billing"], 1, "ops")
     br = bridge_mod.Bridge(conn, TOOL_CATALOG)
-    elv = br.grant_elevation("w1", "write_invoice")
+    elv = br.grant_elevation("w1", "write_invoice", approver="ops-lead")
     with pytest.raises(bridge_mod.BridgeDenied):
         br.execute(bridge_mod.ActionRequest("w1", "deploy_service"),
                    elevation_id=elv)
@@ -287,8 +285,9 @@ def test_bridge_destructive_allowed_with_approval():
     registry.register_agent(conn, "d1", "D1", "m", ["purge_cache"],
                             ["cache"], 3, "ops")
     br = bridge_mod.Bridge(conn, TOOL_CATALOG)
+    apr = br.approve("d1", "purge_cache", approver="ops-lead")
     out = br.execute(bridge_mod.ActionRequest("d1", "purge_cache",
-                                              human_approved=True))
+                                              approval_id=apr))
     assert out["decision"] == "allowed"
 
 
@@ -467,3 +466,154 @@ def test_demo_scenario_finds_both_shadows():
     recs = {f["caller_id"]: f["recommendation"]
             for f in out["shadow_findings"]}
     assert recs == {"ghost-helper": "onboard", "rogue-cleaner": "block"}
+
+
+# ---------- review fixes (grokbot-portfolio, 2026-10-18) ----------
+from datetime import datetime, timedelta, timezone  # noqa: E402
+
+from agelayer.audit import AuditLog  # noqa: E402
+
+T0 = datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc)
+
+
+class Clock:
+    def __init__(self):
+        self.now = T0
+
+    def __call__(self):
+        return self.now
+
+
+def _destructive_agent(conn, level=3):
+    registry.register_agent(conn, "d1", "D1", "m", ["purge_cache"], ["cache"], level, "ops")
+
+
+def test_agent_cannot_approve_its_own_destructive_action():
+    conn = fresh_db()
+    _destructive_agent(conn)
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG)
+    with pytest.raises(bridge_mod.BridgeDenied) as e:
+        br.execute(bridge_mod.ActionRequest("d1", "purge_cache", human_approved=True))
+    assert e.value.policy_id == "BRIDGE-04"
+    for who in ("d1", "", "agt-router"):  # the agent itself, nobody, another agent
+        registry.seed_demo(conn)
+        with pytest.raises(bridge_mod.BridgeDenied) as e:
+            br.approve("d1", "purge_cache", approver=who)
+        assert e.value.policy_id == "BRIDGE-06"
+
+
+def test_approval_is_single_use_scoped_and_expires():
+    conn = fresh_db()
+    _destructive_agent(conn)
+    registry.register_agent(conn, "d2", "D2", "m", ["purge_cache"], ["cache"], 3, "ops")
+    clock = Clock()
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG, clock=clock)
+    apr = br.approve("d1", "purge_cache", approver="ops-lead")
+    with pytest.raises(bridge_mod.BridgeDenied) as e:  # other agent
+        br.execute(bridge_mod.ActionRequest("d2", "purge_cache", approval_id=apr))
+    assert e.value.policy_id == "BRIDGE-05"
+    assert br.execute(bridge_mod.ActionRequest("d1", "purge_cache", approval_id=apr))["decision"] == "allowed"
+    with pytest.raises(bridge_mod.BridgeDenied) as e:  # reuse
+        br.execute(bridge_mod.ActionRequest("d1", "purge_cache", approval_id=apr))
+    assert e.value.policy_id == "BRIDGE-05"
+    late = br.approve("d1", "purge_cache", approver="ops-lead", ttl_min=15)
+    clock.now = T0 + timedelta(minutes=16)
+    with pytest.raises(bridge_mod.BridgeDenied) as e:
+        br.execute(bridge_mod.ActionRequest("d1", "purge_cache", approval_id=late))
+    assert e.value.policy_id == "BRIDGE-05"
+
+
+def test_destructive_still_needs_l2_even_with_approval():
+    conn = fresh_db()
+    _destructive_agent(conn, level=1)
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG)
+    apr = br.approve("d1", "purge_cache", approver="ops-lead")
+    with pytest.raises(bridge_mod.BridgeDenied) as e:
+        br.execute(bridge_mod.ActionRequest("d1", "purge_cache", approval_id=apr))
+    assert e.value.policy_id == "BRIDGE-04"
+
+
+def test_jit_elevation_expires():
+    conn = fresh_db()
+    registry.register_agent(conn, "w1", "W1", "m", ["write_invoice"], ["billing"], 1, "ops")
+    clock = Clock()
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG, clock=clock)
+    elv = br.grant_elevation("w1", "write_invoice", approver="ops-lead", expires_min=30)
+    assert br.execute(bridge_mod.ActionRequest("w1", "write_invoice"), elevation_id=elv)["decision"] == "allowed"
+    clock.now = T0 + timedelta(minutes=31)
+    with pytest.raises(bridge_mod.BridgeDenied) as e:
+        br.execute(bridge_mod.ActionRequest("w1", "write_invoice"), elevation_id=elv)
+    assert e.value.policy_id == "BRIDGE-05"
+    with pytest.raises(ValueError):
+        br.grant_elevation("w1", "write_invoice", approver="ops-lead", expires_min=10_000)
+
+
+def test_tool_missing_from_catalog_is_treated_as_destructive():
+    conn = fresh_db()
+    registry.register_agent(conn, "x1", "X1", "m", ["wipe_everything"], ["prod"], 3, "ops")
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG)
+    with pytest.raises(bridge_mod.BridgeDenied) as e:
+        br.execute(bridge_mod.ActionRequest("x1", "wipe_everything"))
+    assert e.value.policy_id == "BRIDGE-04"
+    f = shadow_mod.detect([{"caller_id": "ghost", "tool": "wipe_everything"}], conn, TOOL_CATALOG)
+    assert f[0]["recommendation"] == "block"
+
+
+def test_revoked_agent_denied_and_its_activity_flagged():
+    conn = seeded_db()
+    registry.set_status(conn, "agt-router", "revoked")
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG)
+    with pytest.raises(bridge_mod.BridgeDenied) as e:
+        br.execute(bridge_mod.ActionRequest("agt-router", "read_tickets"))
+    assert e.value.policy_id == "BRIDGE-01"
+    findings = shadow_mod.detect([{"caller_id": "agt-wiper", "tool": "read_logs"},
+                                  {"caller_id": "agt-router", "tool": "read_tickets"}],
+                                 conn, TOOL_CATALOG)
+    assert {(f["caller_id"], f["rule_id"], f["recommendation"]) for f in findings} == {
+        ("agt-router", "SHADOW-03", "block"), ("agt-wiper", "SHADOW-03", "block")}
+
+
+def test_every_bridge_decision_is_hash_chained():
+    conn = seeded_db()
+    log = AuditLog()
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG, chain=log)
+    br.execute(bridge_mod.ActionRequest("agt-router", "read_tickets"))
+    with pytest.raises(bridge_mod.BridgeDenied):
+        br.execute(bridge_mod.ActionRequest("agt-router", "write_invoice"))
+    decisions = [e for e in log.entries if e["kind"] == "bridge.decision"]
+    assert [d["payload"]["decision"] for d in decisions] == ["allowed", "denied"]
+    assert log.verify()
+    log.entries[0]["payload"]["decision"] = "denied"
+    assert not log.verify()
+
+
+def test_denials_and_shadow_callers_reach_the_read_views():
+    conn = seeded_db()
+    br = bridge_mod.Bridge(conn, TOOL_CATALOG, clock=Clock())
+    for req in (bridge_mod.ActionRequest("agt-router", "write_invoice"),
+                bridge_mod.ActionRequest("ghost-7", "purge_cache")):
+        with pytest.raises(bridge_mod.BridgeDenied):
+            br.execute(req)
+    denials = views.run_query(conn, "SELECT agent_id, policy_id FROM v_bridge_denials ORDER BY denial_id")
+    assert [tuple(r) for r in denials] == [("agt-router", "BRIDGE-02"), ("ghost-7", "BRIDGE-01")]
+    shadows = views.run_query(conn, "SELECT caller_id, recommendation FROM v_shadow_findings")
+    assert [tuple(r) for r in shadows] == [("ghost-7", "block")]
+
+
+def test_posture_view_tool_count_is_exact():
+    conn = fresh_db()
+    registry.register_agent(conn, "a0", "A0", "m", [], [], 0, "ops")
+    registry.register_agent(conn, "a3", "A3", "m", ["t1", "t2", "t3"], [], 1, "ops")
+    rows = dict(tuple(r) for r in views.run_query(conn, "SELECT agent_id, tool_count FROM v_agent_posture"))
+    assert rows == {"a0": 0, "a3": 3}
+
+
+def test_zsp_counts_unknown_tools_as_standing_write_and_validates_inputs():
+    conn = fresh_db()
+    registry.register_agent(conn, "x1", "X1", "m", ["mystery_tool"], [], 2, "ops")
+    s = zsp.score(conn, TOOL_CATALOG, 0, 0, 0, 0, 0)
+    assert s["components"]["no_standing_write_pct"] == 0.0
+    with pytest.raises(ValueError, match="ZSP-INPUT-01"):
+        zsp.score(conn, TOOL_CATALOG, 5, 3, 0, 0, 0)
+    with pytest.raises(ValueError, match="ZSP-INPUT-01"):
+        zsp.score(conn, TOOL_CATALOG, 0, 0, 0, 0, -1)

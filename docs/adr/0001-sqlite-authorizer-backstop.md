@@ -31,3 +31,12 @@ self-joins, `count(*)`), which returns no column data.
 - Regression tests run the authorizer with the text check **bypassed**
   (`run_query_authorizer_only`) to prove the backstop holds on its own —
   this is now a standing rule for every repo with a gateway.
+
+## Revision (2026-10-18)
+
+The authorizer now uses the shared strict template (`agelayer/authz.py`):
+schema tables, writes, PRAGMA and `load_extension` are denied, and the
+empty-column exception applies only to tables behind an allowed view.
+`tests/test_authorizer_strict.py` (16 tests) proves each bypass class is
+denied with the text check off. Residual: `count(*)` returns a row count,
+never column values.
