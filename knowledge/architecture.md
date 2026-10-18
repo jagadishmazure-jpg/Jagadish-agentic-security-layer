@@ -15,7 +15,10 @@ flowchart TB
     R --> G[graph.py<br/>agents -> tools -> scopes]
     G --> BR[blast_radius<br/>transitive closure]
     G --> EP[escalation_paths<br/>to sensitive nodes]
-    BR --> IMP[impact.py<br/>compromise analysis]
+    R --> EFF[effective.py<br/>direct + indirect privilege]
+    EFF --> HE[hidden_escalations<br/>EFF-01/02/03]
+    EFF --> IMP[impact.py<br/>compromise analysis]
+    BR --> IMP
 
     R --> BDG[bridge.py<br/>governed tool bridge]
     BDG --> POL{registration?<br/>grant? autonomy?}
@@ -40,6 +43,7 @@ flowchart TB
 | `registry.py` | Agent inventory, autonomy levels L0-L3, status |
 | `shadow.py` | Unregistered-caller detection + onboard/block scoring |
 | `graph.py` | Privilege graph, blast radius, escalation paths |
+| `effective.py` | Effective privilege: nested groups (EFF-01), wildcards (EFF-02), dormant grants (EFF-03); `hidden_escalations` finds indirect-only privilege |
 | `impact.py` | Compromise exposure ranking + containment actions |
 | `bridge.py` | Per-action governance (centerpiece) |
 | `zsp.py` | Zero-standing-privilege posture score |

@@ -20,9 +20,18 @@ and checked in CI.
 3. **Privilege graph** — agents -> tools -> data scopes. `blast_radius`
    returns everything a compromised agent can reach; `escalation_paths`
    finds paths to high-sensitivity nodes.
-4. **Compromised-agent impact** — exposure ranked by sensitivity with
+4. **Effective privilege** — direct-grant review misses indirect paths.
+   `effective_privilege` resolves nested group membership (EFF-01),
+   wildcard grants (EFF-02), and dormant grants (EFF-03) into the full
+   tool/scope set with every path cited. `hidden_escalations` finds
+   privileges reachable ONLY indirectly. Demo: `agt-router` looks like a
+   read-only L1 agent on direct review but effectively holds
+   `rotate_secret` (sensitivity 5) via a dormant break-glass grant.
+   Compromise analysis over effective privilege revokes indirect-only
+   access first, since it survives naive cleanup.
+5. **Compromised-agent impact** — exposure ranked by sensitivity with
    prioritized containment actions (suspend, revoke, rotate, review).
-5. **Governed tool bridge (centerpiece)** — agents never call tools
+6. **Governed tool bridge (centerpiece)** — agents never call tools
    directly; the bridge verifies registration (BRIDGE-01), grant
    (BRIDGE-02), autonomy level (BRIDGE-03), and human approval for
    destructive actions (BRIDGE-04, fail-closed). The agent cannot assert
@@ -108,6 +117,9 @@ Checked against the code of each repo, not only its README:
 | Shadow agents are detected and get onboard/block | `test_shadow_detects_unknown_caller`, `test_shadow_block_for_destructive` |
 | Every bridge decision is hash-chained; tampering is detected | `test_every_bridge_decision_is_hash_chained`, `test_audit_tamper_detected` |
 | Denials and shadow callers are readable through the views | `test_denials_and_shadow_callers_reach_the_read_views` |
+| Indirect privilege resolves through nested groups, wildcards and dormant grants (EFF-01/02/03) | `tests/test_effective.py` (`test_nested_group_two_levels_resolves`, `test_wildcard_grant_expands_to_all_tools`, `test_dormant_grant_included_in_effective`) |
+| Hidden escalations (indirect-only privilege) are found and rule-cited; direct-grant review would miss them | `tests/test_effective.py` (`test_hidden_escalations_finds_indirect_only_privilege`, `test_direct_grant_review_misses_hidden_escalation`) |
+| Compromise analysis over effective privilege revokes indirect-only access first | `tests/test_effective.py` (`test_impact_effective_prioritizes_hidden_revocation`) |
 | Gateway denies base tables, schema, writes and `load_extension` with the text check off | `tests/test_authorizer_strict.py` |
 | PII scrubbed from free-text feedback; ISO dates kept | `test_feedback_scrubs_ssn_and_email`, `test_feedback_keeps_dates` |
 
@@ -133,7 +145,7 @@ python3 scripts/count_tests.py     # prints the real total
 
 <!-- run: python scripts/count_tests.py -->
 ```text
-81 tests collected
+98 tests collected
 ```
 <!-- /run -->
 
