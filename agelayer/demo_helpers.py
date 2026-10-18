@@ -81,7 +81,9 @@ def run_scenario() -> dict:
         try:
             br.execute(req, **kw)
         except bridge_mod.BridgeDenied:
-            pass
+            # Denials are expected in the demo; the bridge has already
+            # recorded them in the decision log, the chain and the view.
+            return None
 
     attempt(bridge_mod.ActionRequest("agt-router", "read_tickets"))     # allowed
     attempt(bridge_mod.ActionRequest("agt-router", "write_invoice"))    # BRIDGE-02

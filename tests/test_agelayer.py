@@ -296,10 +296,8 @@ def test_bridge_logs_every_decision():
     decisions = []
     br = bridge_mod.Bridge(conn, TOOL_CATALOG, audit_log=decisions)
     br.execute(bridge_mod.ActionRequest("agt-router", "read_tickets"))
-    try:
+    with pytest.raises(bridge_mod.BridgeDenied):
         br.execute(bridge_mod.ActionRequest("ghost-1", "read_tickets"))
-    except bridge_mod.BridgeDenied:
-        pass
     assert [d["decision"] for d in decisions] == ["allowed", "denied"]
     assert decisions[1]["policy_id"] == "BRIDGE-01"
 
