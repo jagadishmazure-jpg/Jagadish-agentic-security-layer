@@ -51,6 +51,13 @@ flowchart TB
 | `authz.py` | SQLite authorizer backstop (strict, view-aware) |
 | `audit.py` | Hash-chained decision log |
 | `feedback.py` | PII scrubbing before storage |
+| `shadow_ai.py`, `browser_policy.py`, `extensions.py`, `coding_sessions.py` | workforce AI discovery and browser-level controls (docs step 05) |
+| `intent.py`, `budget.py`, `guarded.py`, `risk_card.py` | runtime guardrails v2 (docs step 06) |
+| `mcp/` | MCP registry, pinning, poisoning, shadowing, tokens, discovery, gateway (docs step 07) |
+| `leadership.py`, `scenarios.py` | KPI catalog and report writers (docs step 08) |
+
+The full reading path, with the v2 architecture diagram, is in `docs/00_START_HERE.md` and
+`docs/03_ARCHITECTURE.md`.
 
 See also `docs/adr/0001-sqlite-authorizer-backstop.md` for the gateway
 backstop decision.

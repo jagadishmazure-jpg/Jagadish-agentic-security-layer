@@ -1,0 +1,17 @@
+# Jagadish-agentic-security-layer: daily AI security leadership report
+
+As of 2026-10-31. All data is synthetic. "measured" rows come from running this repo's code; "synthetic sample" rows are placeholders for KPIs another repo owns.
+
+| KPI | Name | Value | Detail | Source |
+| --- | --- | --- | --- | --- |
+| K01 | AI app inventory coverage | 91.7% | 11 of 12 AI apps known; sanctioned share of events 83.2% | measured: this repo, synthetic data |
+| K02 | Shadow AI users | 25 | by BU: engineering 8, finance 5, hr 6, support 6 | measured: this repo, synthetic data |
+| K03 | High-risk prompt rate | 3.1% | sample: 31 of 1,000 prompts had a block-level finding | synthetic sample (owned by pii-guard) |
+| K04 | DLP actions by entity type | redact 52 / warn 38 / block 27 | sample: PII 61, secret 29, source code 27 | synthetic sample (owned by pii-guard) |
+| K05 | Registered agent coverage | 50.0% | 2 of 4 acting agents registered; 2 open shadow findings | measured: this repo, synthetic data |
+| K07 | Out-of-intent action attempts | 6 | 100% blocked (intent_mode=block) | measured: this repo, synthetic data |
+| K08 | Budget breaches | 4 | tokens avoided 12,056,900; cost avoided $51.62 at synthetic prices | measured: this repo, synthetic data |
+| K09 | MCP posture | 3 unapproved / 1 drift / 4 poisoned | 0 quarantined now; 1 name collision(s) | measured: this repo, synthetic data |
+| K16 | Personal-account AI use | 2.2% | 10 of 456 sanctioned-app events; 9 users | measured: this repo, synthetic data |
+| K19 | DLP findings per 1,000 prompts | 41.0 per 1k | sample: secrets 12, PII 21, code 8 per 1k prompts | synthetic sample (owned by pii-guard) |
+| K21 | Blocked paste and upload events | 19 | sample: top destination unclassified chat apps | synthetic sample (owned by pii-guard) |

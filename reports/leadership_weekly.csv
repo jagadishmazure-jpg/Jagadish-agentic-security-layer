@@ -1,0 +1,25 @@
+kpi_id,name,value,detail,source,owner
+K01,AI app inventory coverage,91.7%,11 of 12 AI apps known; sanctioned share of events 83.2%,"measured: this repo, synthetic data",agentic-security-layer
+K02,Shadow AI users,25,"by BU: engineering 8, finance 5, hr 6, support 6","measured: this repo, synthetic data",agentic-security-layer
+K03,High-risk prompt rate,3.1%,"sample: 31 of 1,000 prompts had a block-level finding",synthetic sample (owned by pii-guard),pii-guard
+K04,DLP actions by entity type,redact 52 / warn 38 / block 27,"sample: PII 61, secret 29, source code 27",synthetic sample (owned by pii-guard),pii-guard
+K05,Registered agent coverage,50.0%,2 of 4 acting agents registered; 2 open shadow findings,"measured: this repo, synthetic data",agentic-security-layer
+K06,L2+ agents with owner and approval path,66.7%,2 of 3 L2+ agents; gaps: agt-deployer,"measured: this repo, synthetic data",agentic-security-layer
+K07,Out-of-intent action attempts,6,100% blocked (intent_mode=block),"measured: this repo, synthetic data",agentic-security-layer
+K08,Budget breaches,4,"tokens avoided 12,056,900; cost avoided $51.62 at synthetic prices","measured: this repo, synthetic data",agentic-security-layer
+K09,MCP posture,3 unapproved / 1 drift / 4 poisoned,0 quarantined now; 1 name collision(s),"measured: this repo, synthetic data",agentic-security-layer
+K10,Red-team attack success rate,10.5%,sample: worst category indirect injection 25%; +5.3 pts vs last release,synthetic sample (owned by agent-security-redteam),agent-security-redteam
+K11,Mean time to fix an AI finding,3.5 days,sample: 4 findings fixed and verified by replay,synthetic sample (owned by agent-security-redteam),agent-security-redteam
+K12,Proven exposures vs raw findings,18.0%,sample: 18 of 100 raw findings proven exploitable,synthetic sample (owned by continuous-security-program (planned)),continuous-security-program (planned)
+K13,MTTSR and zero-disruption rate,2.1 days,sample: zero-disruption rate 94%,synthetic sample (owned by continuous-security-program (planned)),continuous-security-program (planned)
+K14,Human approval latency and override rate,10 min median,override rate 30% over 10 synthetic approvals,"measured: this repo, synthetic data",agentic-security-layer
+K15,AI tools by sanction state,4 approved / 1 monitored / 1 unclassified / 6 unsanctioned,12 AI tools seen,"measured: this repo, synthetic data",agentic-security-layer
+K16,Personal-account AI use,2.2%,10 of 456 sanctioned-app events; 9 users,"measured: this repo, synthetic data",agentic-security-layer
+K17,New unsanctioned tools this week,3,"app-gitmuse, app-mcp-desktop, unclassified:summarize-anything.example","measured: this repo, synthetic data",agentic-security-layer
+K18,First-seen to decision time,1.5 days median,"8 decided, 4 still open","measured: this repo, synthetic data",agentic-security-layer
+K19,"DLP findings per 1,000 prompts",41.0 per 1k,"sample: secrets 12, PII 21, code 8 per 1k prompts",synthetic sample (owned by pii-guard),pii-guard
+K20,DLP outcome mix and false blocks,warn 32% / redact 44% / block 24%,sample: false-block rate 3%,synthetic sample (owned by pii-guard),pii-guard
+K21,Blocked paste and upload events,19,sample: top destination unclassified chat apps,synthetic sample (owned by pii-guard),pii-guard
+K22,Browser extension risk,9 in use,44% high-risk permissions; 22% blocked; mean 2 days to remove,"measured: this repo, synthetic data",agentic-security-layer
+K23,AI seat utilisation,75.9%,"quillwise 59/80, stackwise 28/40, ledgerlens 42/50","measured: this repo, synthetic data",agentic-security-layer
+K24,Telemetry coverage,93.8%,60 of 64 staff seen by a telemetry source,"measured: this repo, synthetic data",agentic-security-layer

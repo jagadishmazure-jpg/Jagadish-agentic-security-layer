@@ -1,0 +1,102 @@
+{
+ "label": "synthetic sample feed for KPIs owned by other repos (not measurements)",
+ "as_of": "2026-10-31",
+ "kpis": {
+  "K03": {
+   "value": 0.031,
+   "detail": "sample: 31 of 1,000 prompts had a block-level finding"
+  },
+  "K04": {
+   "value": "redact 52 / warn 38 / block 27",
+   "detail": "sample: PII 61, secret 29, source code 27"
+  },
+  "K10": {
+   "value": 0.105,
+   "detail": "sample: worst category indirect injection 25%; +5.3 pts vs last release"
+  },
+  "K11": {
+   "value": "3.5 days",
+   "detail": "sample: 4 findings fixed and verified by replay"
+  },
+  "K12": {
+   "value": 0.18,
+   "detail": "sample: 18 of 100 raw findings proven exploitable"
+  },
+  "K13": {
+   "value": "2.1 days",
+   "detail": "sample: zero-disruption rate 94%"
+  },
+  "K19": {
+   "value": "41.0 per 1k",
+   "detail": "sample: secrets 12, PII 21, code 8 per 1k prompts"
+  },
+  "K20": {
+   "value": "warn 32% / redact 44% / block 24%",
+   "detail": "sample: false-block rate 3%"
+  },
+  "K21": {
+   "value": 19,
+   "detail": "sample: top destination unclassified chat apps"
+  },
+  "K01": {
+   "value": 0.9,
+   "detail": "sample"
+  },
+  "K02": {
+   "value": 20,
+   "detail": "sample"
+  },
+  "K05": {
+   "value": 0.8,
+   "detail": "sample"
+  },
+  "K06": {
+   "value": 0.67,
+   "detail": "sample"
+  },
+  "K07": {
+   "value": "5 attempts, 100% blocked",
+   "detail": "sample"
+  },
+  "K08": {
+   "value": "2 sessions stopped",
+   "detail": "sample"
+  },
+  "K09": {
+   "value": "2 unapproved / 1 drift / 3 poisoned",
+   "detail": "sample"
+  },
+  "K14": {
+   "value": "12 min median",
+   "detail": "sample: override rate 20%"
+  },
+  "K15": {
+   "value": "7 approved / 1 monitored / 4 unsanctioned",
+   "detail": "sample"
+  },
+  "K16": {
+   "value": 0.05,
+   "detail": "sample"
+  },
+  "K17": {
+   "value": 2,
+   "detail": "sample"
+  },
+  "K18": {
+   "value": "4 days",
+   "detail": "sample"
+  },
+  "K22": {
+   "value": "9 in use, 44% high-risk",
+   "detail": "sample"
+  },
+  "K23": {
+   "value": 0.7,
+   "detail": "sample"
+  },
+  "K24": {
+   "value": 0.9,
+   "detail": "sample"
+  }
+ }
+}
