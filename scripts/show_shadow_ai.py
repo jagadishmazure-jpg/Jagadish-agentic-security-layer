@@ -21,6 +21,9 @@ print("browser policy:", ", ".join(f"{a} {n}" for a, n in b["actions"].items()),
 print("by state:", ", ".join(f"{s} {n}" for s, n in b["by_state"].items()))
 for r in extensions.assess(extensions.demo_inventory()):
     print(f"ext {r['ext_id']:<17} score {r['score']:>3} {r['recommendation']:<17} {','.join(r['rules']) or '-'}")
+CSG_RULES = ("CSG-01", "CSG-02", "CSG-03", "CSG-04", "CSG-05")
 for s in coding_scenario():
-    rules = ", ".join(f"{f['rule_id']}:{f['type']}" for f in s["findings"]) or "clean"
+    # Print constant rule ids only; finding details stay out of stdout.
+    hit = [r for r in CSG_RULES if any(f["rule_id"] == r for f in s["findings"])]
+    rules = ", ".join(hit) or "clean"
     print(f"coding {s['session_id']} blocked turns {s['blocked_turns']} -> {rules}")

@@ -81,8 +81,8 @@ ext ext-pwmgr         score   6 allow             -
 ext ext-tabsort       score   6 allow             -
 ext ext-sso-helper    score   3 force-install     -
 coding cs-001 blocked turns [] -> clean
-coding cs-002 blocked turns [0, 1] -> CSG-01:generic_secret, CSG-02:secrets_file
-coding cs-003 blocked turns [0, 1] -> CSG-05:unsanctioned_assistant, CSG-04:unregistered_agent, CSG-01:git_token, CSG-03:restricted_code
+coding cs-002 blocked turns [0, 1] -> CSG-01, CSG-02
+coding cs-003 blocked turns [0, 1] -> CSG-01, CSG-03, CSG-04, CSG-05
 ```
 <!-- /run -->
 
