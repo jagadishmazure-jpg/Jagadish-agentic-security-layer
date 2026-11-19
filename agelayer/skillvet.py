@@ -165,7 +165,7 @@ def vet_skill(files: dict, manifest: dict = None) -> VetReport:
                     "BLOCK", "SKILL-01", path,
                     f"shell execution pattern '{name}' "
                     f"(line {_line_of(content, m)})"))
-        for name, pattern in groups["network"].items():
+        for _name, pattern in groups["network"].items():
             if re.search(pattern, content):
                 note_capability("network", path)
         for name, pattern in groups["endpoint"].items():
